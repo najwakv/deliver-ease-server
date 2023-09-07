@@ -9,6 +9,7 @@ const driverSchema = new Schema({
     mobile: {
         type: Number,
         required: true,
+        unique: true,
     },
     password: {
         type: String,

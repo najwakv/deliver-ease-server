@@ -16,11 +16,12 @@ const vendorSchema = new Schema({
     email: {
         type: String,
         requied: true,
+        unique: true,
     },
     address: {
         type: String,
     },
 })
 
-const vendorModel = mongoose.model("Ventors", vendorSchema);
+const vendorModel = mongoose.model("Vendor", vendorSchema);
 export default vendorModel;
