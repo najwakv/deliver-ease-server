@@ -69,3 +69,15 @@ export const addDriver = async (req, res) => {
       .json({ message: "An error occurred. Please try again later." });
   }
 };
+
+// ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
+
+export const getDrivers = async (req, res) => {
+  try {
+    const drivers = await driverModel.find();
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Unable to get Driver list" });
+  }
+};
