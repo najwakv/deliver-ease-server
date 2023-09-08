@@ -35,6 +35,10 @@ const orderSchema = new Schema({
         type: Number,
         required: true,
     },
+    delivered: {
+        type: Boolean,
+        default: false,
+    }
 });
 
 const orderModel = mongoose.model("Order", orderSchema);

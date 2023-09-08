@@ -5,6 +5,7 @@ const driverSchema = new Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
     },
     mobile: {
         type: Number,
@@ -21,6 +22,10 @@ const driverSchema = new Schema({
     license: {
         type: String,
         required: true,
+    },
+    block: {
+        type: Boolean,
+        default: false,
     },
 });
 
