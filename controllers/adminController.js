@@ -69,7 +69,9 @@ export const doLogin = async (req, res) => {
 export const addDriver = async (req, res) => {
   try {
     const { name, mobile, password, address, license } = req.body;
-    const driver = await driverModel.findOne({ name });
+    const driver = await driverModel.findOne({
+      name: { $regex: new RegExp(`^${name}$`, "i") },
+    });
 
     if (driver) {
       res
@@ -95,12 +97,23 @@ export const addDriver = async (req, res) => {
   }
 };
 
+export const addVendor = async (req, res) => {};
+
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
 export const updateDriver = async (req, res) => {
   try {
     const driverId = req.params.driverId;
     const updateData = req.body;
+    const existingDriver = await driverModel.findOne({
+      name: { $regex: new RegExp(updateData.name, "i") },
+      _id: { $ne: driverId },
+    });
+    if (existingDriver) {
+      return res
+        .status(400)
+        .json({ message: "Another driver with the same name already exists" });
+    }
     const updatedDriver = await driverModel.findByIdAndUpdate(
       driverId,
       updateData,
