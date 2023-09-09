@@ -81,3 +81,44 @@ export const getDrivers = async (req, res) => {
     res.status(404).json({ message: "Unable to get Driver list" });
   }
 };
+
+// ------------------------------------------------------------------GET-AN-DRIVER------------------------------------------------------------------//
+
+export const getDriver = async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const driver = await driverModel.find({ _id: driverId });
+    res.status(200).json(driver);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Unable to get Driver details" });
+  }
+};
+
+// ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
+
+export const updateDriver = async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const updateData = req.body;
+    const updatedDriver = await driverModel.findByIdAndUpdate(
+      driverId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!updatedDriver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+    const response = {
+      message: "Driver Details updated succesfully",
+      updatedDriver,
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
