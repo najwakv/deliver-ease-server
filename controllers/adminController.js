@@ -69,14 +69,11 @@ export const doLogin = async (req, res) => {
 export const addDriver = async (req, res) => {
   try {
     const { name, mobile, password, address, license } = req.body;
-    const driver = await driverModel.findOne({
-      name: { $regex: new RegExp(`^${name}$`, "i") },
-    });
-
+    const driver = await driverModel.findOne({ mobile });
     if (driver) {
       res
         .status(201)
-        .json({ message: "Driver already exists with this Username." });
+        .json({ message: "Driver already exists with this Mobile number." });
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
       const newDriver = new driverModel({
@@ -106,13 +103,13 @@ export const updateDriver = async (req, res) => {
     const driverId = req.params.driverId;
     const updateData = req.body;
     const existingDriver = await driverModel.findOne({
-      name: { $regex: new RegExp(updateData.name, "i") },
+      mobile: updateData.mobile,
       _id: { $ne: driverId },
     });
     if (existingDriver) {
       return res
         .status(400)
-        .json({ message: "Another driver with the same name already exists" });
+        .json({ message: "Another driver with the same mobile number already exists" });
     }
     const updatedDriver = await driverModel.findByIdAndUpdate(
       driverId,
