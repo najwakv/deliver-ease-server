@@ -1,5 +1,5 @@
 import express from "express";
-import { addDriver, addVendor, deleteDriver, deleteVendor, doLogin, getDriver, getDrivers, getVendor, getVendors, toggleBlockDriver, updateDriver, updateVendor } from "../controllers/adminController.js";
+import { addCategory, addDriver, addVendor, deleteDriver, deleteVendor, doLogin, getCategories, getCategory, getDriver, getDrivers, getVendor, getVendors, toggleBlockDriver, updateDriver, updateVendor } from "../controllers/adminController.js";
 import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 const router = express.Router();
 
@@ -7,10 +7,13 @@ const router = express.Router();
 router.get("/drivers", adminAuthMiddleware, getDrivers);
 router.get("/drivers/:driverId", adminAuthMiddleware, getDriver);
 router.get("/vendors", adminAuthMiddleware, getVendors);
-router.get("/vendors/:vendorId", adminAuthMiddleware, getVendor)
+router.get("/vendors/:vendorId", adminAuthMiddleware, getVendor);
+router.get("/categories", adminAuthMiddleware, getCategories);
+router.get("/categories/:categoryId", adminAuthMiddleware, getCategory);
 router.post("/login", doLogin);
 router.post("/drivers/addDriver", adminAuthMiddleware, addDriver);
 router.post("/vendors/addVendor", adminAuthMiddleware, addVendor);
+router.post("/category/addCategory", adminAuthMiddleware, addCategory);
 router.patch("/drivers/:driverId", adminAuthMiddleware, updateDriver);
 router.patch("/drivers/:driverId/toggleBlockDriver", toggleBlockDriver);
 router.patch("/vendors/:vendorId", adminAuthMiddleware, updateVendor);

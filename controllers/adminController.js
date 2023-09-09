@@ -3,6 +3,7 @@ import adminModel from "../models/adminModel.js";
 import { generateToken } from "../utils/generateJWT.js";
 import driverModel from "../models/driverModel.js";
 import vendorModel from "../models/vendorModel.js";
+import categoryModel from "../models/categoryModel.js";
 
 // ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
 
@@ -29,7 +30,7 @@ export const getDriver = async (req, res) => {
   try {
     const driverId = req.params.driverId;
     const driver = await driverModel.find({ _id: driverId });
-    if (!driver) {
+    if (driver.length === 0) {
       return res.status(404).json({ message: "Driver not found" });
     }
     res.status(200).json(driver);
@@ -69,7 +70,7 @@ export const getVendor = async (req, res) => {
   try {
     const vendorId = req.params.vendorId;
     const vendor = await vendorModel.findOne({ _id: vendorId });
-    if (!vendor) {
+    if (vendor.length === 0) {
       return res.status(404).json({ message: "Vendor not found" });
     }
     res.status(200).json(vendor);
@@ -78,6 +79,47 @@ export const getVendor = async (req, res) => {
     res.status(500).json({
       message:
         "Unable to get Vendor details. An internal server error occurred.",
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-CATEGORIES------------------------------------------------------------------//
+
+export const getCategories = async (req, res) => {
+  try {
+    const categories = await categoryModel.find();
+    if (categories.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Categories found in the database.")
+        .send();
+    } else {
+      res.status(200).json(categories);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Unable to get Category list. An internal server error occurred.",
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-AN-CATEGORY------------------------------------------------------------------//
+
+export const getCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.categoryId;
+    const category = await categoryModel.findOne({ _id: categoryId });
+    if (category.length === 0) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+    res.status(200).json(category);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Unable to get Category details. An internal server error occurred.",
     });
   }
 };
@@ -103,12 +145,12 @@ export const doLogin = async (req, res) => {
           res.status(200).json(response);
         } else {
           res
-            .status(201)
+            .status(401)
             .json({ message: "Incorrect password. Please try again." });
         }
       });
     } else {
-      res.status(201).json({ message: "Incorrect Email. Please try again." });
+      res.status(404).json({ message: "Admin not found" });
     }
   } catch (error) {
     console.error(error);
@@ -126,7 +168,7 @@ export const addDriver = async (req, res) => {
     const driver = await driverModel.findOne({ mobile });
     if (driver) {
       res
-        .status(201)
+        .status(409)
         .json({ message: "Driver already exists with this Mobile number." });
     } else {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -138,7 +180,7 @@ export const addDriver = async (req, res) => {
         password: hashedPassword,
       });
       await newDriver.save();
-      res.status(200).json({ message: "Driver created successfully." });
+      res.status(201).json({ message: "Driver created successfully." });
     }
   } catch (error) {
     console.error(error);
@@ -148,12 +190,14 @@ export const addDriver = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------ADD-VENDOR------------------------------------------------------------------//
+
 export const addVendor = async (req, res) => {
   try {
     const { name, mobile, location, email, address } = req.body;
     const existingVendor = await vendorModel.findOne({ email });
     if (existingVendor) {
-      return res.status(400).json({
+      return res.status(409).json({
         message:
           "Vendor with this email already exists. Registration canceled.",
       });
@@ -173,6 +217,26 @@ export const addVendor = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------ADD-CATEGORY------------------------------------------------------------------//
+
+export const addCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const existingCategory = await categoryModel.findOne({
+      name: { $regex: new RegExp(`${name}`, "i") },
+    });
+    if (existingCategory) {
+      return res.status(409).json({ error: "Category already exists." });
+    }
+    const newCategory = new categoryModel({ name });
+    await newCategory.save();
+    return res.status(201).json({ message: "Category added successfully." });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
 export const updateDriver = async (req, res) => {
@@ -184,7 +248,7 @@ export const updateDriver = async (req, res) => {
       _id: { $ne: driverId },
     });
     if (existingDriver) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: "Another driver with the same mobile number already exists",
       });
     }
@@ -241,7 +305,7 @@ export const updateVendor = async (req, res) => {
       _id: { $ne: vendorId },
     });
     if (existingVendor) {
-      return res.status(400).json({
+      return res.status(409).json({
         message: "Another Vendor with the same email already exists",
       });
     }
