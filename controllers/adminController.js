@@ -30,12 +30,17 @@ export const getDriver = async (req, res) => {
     const driverId = req.params.driverId;
     const driver = await driverModel.find({ _id: driverId });
     if (!driver) {
-        return res.status(404).json({ message: "Driver not found" });
-      }
+      return res.status(404).json({ message: "Driver not found" });
+    }
     res.status(200).json(driver);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Unable to get Driver details. An internal server error occurred." });
+    res
+      .status(500)
+      .json({
+        message:
+          "Unable to get Driver details. An internal server error occurred.",
+      });
   }
 };
 
@@ -54,7 +59,12 @@ export const getVendors = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Unable to get Vendor list. An internal server error occurred." });
+    res
+      .status(500)
+      .json({
+        message:
+          "Unable to get Vendor list. An internal server error occurred.",
+      });
   }
 };
 
@@ -219,6 +229,43 @@ export const toggleBlockDriver = async (req, res) => {
     res
       .status(200)
       .json({ message: `Driver ${driver.block ? "blocked" : "unblocked"}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ------------------------------------------------------------------UPDATE-VENDOR-DETAILS------------------------------------------------------------------//
+
+export const updateVendor = async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const updateData = req.body;
+    const existingVendor = await vendorModel.findOne({
+      email: updateData.email,
+      _id: { $ne: vendorId },
+    });
+    if (existingVendor) {
+      return res.status(400).json({
+        message: "Another Vendor with the same email already exists",
+      });
+    }
+    const updatedVendor = await vendorModel.findByIdAndUpdate(
+      vendorId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!updatedVendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+    const response = {
+      message: "Vendor Details updated succesfully",
+      updatedVendor,
+    };
+    res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
