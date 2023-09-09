@@ -35,12 +35,10 @@ export const getDriver = async (req, res) => {
     res.status(200).json(driver);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message:
-          "Unable to get Driver details. An internal server error occurred.",
-      });
+    res.status(500).json({
+      message:
+        "Unable to get Driver details. An internal server error occurred.",
+    });
   }
 };
 
@@ -59,12 +57,9 @@ export const getVendors = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message:
-          "Unable to get Vendor list. An internal server error occurred.",
-      });
+    res.status(500).json({
+      message: "Unable to get Vendor list. An internal server error occurred.",
+    });
   }
 };
 
@@ -282,6 +277,22 @@ export const deleteDriver = async (req, res) => {
       return res.status(404).json({ message: "Driver not found" });
     }
     res.status(200).json({ message: "Driver deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ------------------------------------------------------------------DELETE-VENDOR------------------------------------------------------------------//
+
+export const deleteVendor = async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const deletedVendor = await vendorModel.findByIdAndRemove(vendorId);
+    if (!deletedVendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+    res.status(200).json({ message: "Vendor deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
