@@ -4,6 +4,7 @@ import { generateToken } from "../utils/generateJWT.js";
 import driverModel from "../models/driverModel.js";
 import vendorModel from "../models/vendorModel.js";
 import categoryModel from "../models/categoryModel.js";
+import productModel from "../models/productModel.js";
 
 // ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
 
@@ -234,6 +235,45 @@ export const addCategory = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// ------------------------------------------------------------------ADD-PRODUCT------------------------------------------------------------------//
+
+export const addProduct = async (req, res) => {
+  try {
+    const { name, price, categoryId, image, quantity, available } = req.body;
+
+    const existingProduct = await productModel.findOne({
+      name: { $regex: new RegExp(`${name}`, "i") },
+    });
+    if (existingProduct) {
+      return res
+        .status(400)
+        .json({ error: `Product with the name ${name} already exists` });
+    }
+
+    const category = await categoryModel.findById(categoryId);
+    if (!category) {
+      return res.status(400).json({ error: "Category not found" });
+    }
+
+    const newProduct = await productModel.create({
+      name,
+      price,
+      category: {
+        _id: category._id,
+        name: category.name,
+      },
+      image,
+      quantity,
+      available,
+    });
+
+    res.status(201).json({ message: "Product added.", newProduct });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
