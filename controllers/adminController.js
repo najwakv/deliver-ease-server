@@ -125,6 +125,50 @@ export const getCategory = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------GET-PRODUCTS------------------------------------------------------------------//
+
+export const getProducts = async (req, res) => {
+  try {
+    const products = await productModel
+      .find()
+      .populate("category", "_id name block");
+    if (products.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Products found in the database.")
+        .send();
+    } else {
+      res.status(200).json(products);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Unable to get Product list. An internal server error occurred.",
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-AN-PRODUCT------------------------------------------------------------------//
+
+export const getProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const product = await productModel
+      .findOne({ _id: productId })
+      .populate("category", "_id name block");
+    if (product.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Unable to get Product details. An internal server error occurred.",
+    });
+  }
+};
+
 // ------------------------------------------------------------------ADMIN-LOGIN------------------------------------------------------------------//
 
 export const doLogin = async (req, res) => {
