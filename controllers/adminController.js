@@ -19,7 +19,7 @@ export const getDrivers = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: "Unable to get Driver list" });
+    res.status(500).json({ message: "Unable to get Driver list" });
   }
 };
 
@@ -29,10 +29,13 @@ export const getDriver = async (req, res) => {
   try {
     const driverId = req.params.driverId;
     const driver = await driverModel.find({ _id: driverId });
+    if (!driver) {
+        return res.status(404).json({ message: "Driver not found" });
+      }
     res.status(200).json(driver);
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: "Unable to get Driver details" });
+    res.status(500).json({ message: "Unable to get Driver details. An internal server error occurred." });
   }
 };
 
@@ -51,7 +54,26 @@ export const getVendors = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(404).json({ message: "Unable to get Vendor list" });
+    res.status(500).json({ message: "Unable to get Vendor list. An internal server error occurred." });
+  }
+};
+
+// ------------------------------------------------------------------GET-AN-VENDOR------------------------------------------------------------------//
+
+export const getVendor = async (req, res) => {
+  try {
+    const vendorId = req.params.vendorId;
+    const vendor = await vendorModel.findOne({ _id: vendorId });
+    if (!vendor) {
+      return res.status(404).json({ message: "Vendor not found" });
+    }
+    res.status(200).json(vendor);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Unable to get Vendor details. An internal server error occurred.",
+    });
   }
 };
 
