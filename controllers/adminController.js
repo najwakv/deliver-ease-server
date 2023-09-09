@@ -123,6 +123,26 @@ export const updateDriver = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------BLOCK-UNBLOCK-DRIVER------------------------------------------------------------------//
+
+export const toggleBlockDriver = async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const driver = await driverModel.findById(driverId);
+    if (!driver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+    driver.block = !driver.block;
+    await driver.save();
+    res
+      .status(200)
+      .json({ message: `Driver ${driver.block ? "blocked" : "unblocked"}` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // ------------------------------------------------------------------DELETE-DRIVER------------------------------------------------------------------//
 
 export const deleteDriver = async (req, res) => {
