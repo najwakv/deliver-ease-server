@@ -9,7 +9,14 @@ import vendorModel from "../models/vendorModel.js";
 export const getDrivers = async (req, res) => {
   try {
     const drivers = await driverModel.find();
-    res.status(200).json(drivers);
+    if (drivers.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No drivers found in the database.")
+        .send();
+    } else {
+      res.status(200).json(drivers);
+    }
   } catch (error) {
     console.error(error);
     res.status(404).json({ message: "Unable to get Driver list" });
@@ -26,6 +33,25 @@ export const getDriver = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(404).json({ message: "Unable to get Driver details" });
+  }
+};
+
+// ------------------------------------------------------------------GET-VENDORS------------------------------------------------------------------//
+
+export const getVendors = async (req, res) => {
+  try {
+    const vendors = await vendorModel.find();
+    if (vendors.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Vendors found in the database.")
+        .send();
+    } else {
+      res.status(200).json(vendors);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Unable to get Vendor list" });
   }
 };
 
@@ -96,25 +122,28 @@ export const addDriver = async (req, res) => {
 };
 
 export const addVendor = async (req, res) => {
-    try {
-        const { name, mobile, location, email, address } = req.body;
-        const existingVendor = await vendorModel.findOne({ email });
-        if (existingVendor) {
-            return res.status(400).json({ message: 'Vendor with this email already exists. Registration canceled.' });
-        }
-        const newVendor = new vendorModel({
-            name,
-            mobile,
-            location,
-            email,
-            address,
-        });
-        await newVendor.save();
-        return res.status(201).json({ message: 'Vendor registration successful.' });
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({ message: 'Internal server error' });
+  try {
+    const { name, mobile, location, email, address } = req.body;
+    const existingVendor = await vendorModel.findOne({ email });
+    if (existingVendor) {
+      return res.status(400).json({
+        message:
+          "Vendor with this email already exists. Registration canceled.",
+      });
     }
+    const newVendor = new vendorModel({
+      name,
+      mobile,
+      location,
+      email,
+      address,
+    });
+    await newVendor.save();
+    return res.status(201).json({ message: "Vendor registration successful." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
@@ -128,9 +157,9 @@ export const updateDriver = async (req, res) => {
       _id: { $ne: driverId },
     });
     if (existingDriver) {
-      return res
-        .status(400)
-        .json({ message: "Another driver with the same mobile number already exists" });
+      return res.status(400).json({
+        message: "Another driver with the same mobile number already exists",
+      });
     }
     const updatedDriver = await driverModel.findByIdAndUpdate(
       driverId,

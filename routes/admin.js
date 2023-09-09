@@ -1,11 +1,12 @@
 import express from "express";
-import { addDriver, addVendor, deleteDriver, doLogin, getDriver, getDrivers, toggleBlockDriver, updateDriver } from "../controllers/adminController.js";
+import { addDriver, addVendor, deleteDriver, doLogin, getDriver, getDrivers, getVendors, toggleBlockDriver, updateDriver } from "../controllers/adminController.js";
 import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 const router = express.Router();
 
 
 router.get("/drivers", adminAuthMiddleware, getDrivers);
 router.get("/drivers/:driverId", adminAuthMiddleware, getDriver);
+router.get("/vendors", adminAuthMiddleware, getVendors);
 router.post("/login", doLogin);
 router.post("/drivers/addDriver", adminAuthMiddleware, addDriver);
 router.post("/vendors/addVendor", adminAuthMiddleware, addVendor);
