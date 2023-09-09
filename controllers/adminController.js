@@ -415,6 +415,43 @@ export const updateVendor = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------UPDATE-PRODUCT-DETAILS------------------------------------------------------------------//
+
+export const updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const updateData = req.body;
+    const existingProduct = await productModel.findOne({
+      name: { $regex: new RegExp(`${updateData.name}`, "i") },
+      _id: { $ne: productId },
+    });
+    if (existingProduct) {
+      return res.status(409).json({
+        message: "Another Product with the same name already exists",
+      });
+    }
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      productId,
+      updateData,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+    if (!updatedProduct) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    const response = {
+      message: "Product Details updated succesfully",
+      updatedProduct,
+    };
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 // ------------------------------------------------------------------DELETE-DRIVER------------------------------------------------------------------//
 
 export const deleteDriver = async (req, res) => {
