@@ -3,6 +3,31 @@ import adminModel from "../models/adminModel.js";
 import { generateToken } from "../utils/generateJWT.js";
 import driverModel from "../models/driverModel.js";
 
+// ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
+
+export const getDrivers = async (req, res) => {
+  try {
+    const drivers = await driverModel.find();
+    res.status(200).json(drivers);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Unable to get Driver list" });
+  }
+};
+
+// ------------------------------------------------------------------GET-AN-DRIVER------------------------------------------------------------------//
+
+export const getDriver = async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const driver = await driverModel.find({ _id: driverId });
+    res.status(200).json(driver);
+  } catch (error) {
+    console.error(error);
+    res.status(404).json({ message: "Unable to get Driver details" });
+  }
+};
+
 // ------------------------------------------------------------------ADMIN-LOGIN------------------------------------------------------------------//
 
 export const doLogin = async (req, res) => {
@@ -70,31 +95,6 @@ export const addDriver = async (req, res) => {
   }
 };
 
-// ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
-
-export const getDrivers = async (req, res) => {
-  try {
-    const drivers = await driverModel.find();
-    res.status(200).json(drivers);
-  } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: "Unable to get Driver list" });
-  }
-};
-
-// ------------------------------------------------------------------GET-AN-DRIVER------------------------------------------------------------------//
-
-export const getDriver = async (req, res) => {
-  try {
-    const driverId = req.params.driverId;
-    const driver = await driverModel.find({ _id: driverId });
-    res.status(200).json(driver);
-  } catch (error) {
-    console.error(error);
-    res.status(404).json({ message: "Unable to get Driver details" });
-  }
-};
-
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
 export const updateDriver = async (req, res) => {
@@ -117,6 +117,22 @@ export const updateDriver = async (req, res) => {
       updatedDriver,
     };
     res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// ------------------------------------------------------------------DELETE-DRIVER------------------------------------------------------------------//
+
+export const deleteDriver = async (req, res) => {
+  try {
+    const driverId = req.params.driverId;
+    const deletedDriver = await driverModel.findByIdAndRemove(driverId);
+    if (!deletedDriver) {
+      return res.status(404).json({ message: "Driver not found" });
+    }
+    res.status(200).json({ message: "Driver deleted successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
