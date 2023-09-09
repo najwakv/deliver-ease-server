@@ -7,7 +7,7 @@ const vendorSchema = new Schema({
         requied: true,
     },
     mobile: {
-        type: Number,
+        type: String,
         required: true,
     },
     location: {

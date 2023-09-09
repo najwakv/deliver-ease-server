@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import adminModel from "../models/adminModel.js";
 import { generateToken } from "../utils/generateJWT.js";
 import driverModel from "../models/driverModel.js";
+import vendorModel from "../models/vendorModel.js";
 
 // ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
 
@@ -94,7 +95,27 @@ export const addDriver = async (req, res) => {
   }
 };
 
-export const addVendor = async (req, res) => {};
+export const addVendor = async (req, res) => {
+    try {
+        const { name, mobile, location, email, address } = req.body;
+        const existingVendor = await vendorModel.findOne({ email });
+        if (existingVendor) {
+            return res.status(400).json({ message: 'Vendor with this email already exists. Registration canceled.' });
+        }
+        const newVendor = new vendorModel({
+            name,
+            mobile,
+            location,
+            email,
+            address,
+        });
+        await newVendor.save();
+        return res.status(201).json({ message: 'Vendor registration successful.' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+};
 
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
