@@ -5,6 +5,7 @@ import { validateLogin } from "../validators/adminValidators.js";
 import { validateDriver, validateDriverId, validateUpdateDriver } from "../validators/driverValidators.js";
 import { validateUpdateVendor, validateVendor, validateVendorId } from "../validators/vendorValidators.js";
 import { validateProduct, validateProductId, validateUpdateProduct } from "../validators/productValidators.js";
+import { validateCategory, validateCategoryId } from "../validators/categoryValidators.js";
 const router = express.Router();
 
 
@@ -13,13 +14,13 @@ router.get("/drivers/:driverId", adminAuthMiddleware, validateDriverId, getDrive
 router.get("/vendors", adminAuthMiddleware, getVendors);
 router.get("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, getVendor);
 router.get("/categories", adminAuthMiddleware, getCategories);
-router.get("/categories/:categoryId", adminAuthMiddleware, getCategory);
+router.get("/categories/:categoryId", adminAuthMiddleware, validateCategoryId, getCategory);
 router.get("/products", adminAuthMiddleware, getProducts);
 router.get("/products/:productId", adminAuthMiddleware, validateProductId, getProduct);
 router.post("/login", validateLogin, doLogin);
 router.post("/drivers/addDriver", adminAuthMiddleware, validateDriver, addDriver);
 router.post("/vendors/addVendor", adminAuthMiddleware, validateVendor, addVendor);
-router.post("/category/addCategory", adminAuthMiddleware, addCategory);
+router.post("/category/addCategory", adminAuthMiddleware, validateCategory, addCategory);
 router.post("/products/addProduct", adminAuthMiddleware, validateProduct, addProduct);
 router.patch("/drivers/:driverId", adminAuthMiddleware, validateDriverId, validateUpdateDriver, updateDriver);
 router.patch("/drivers/:driverId/toggleBlockDriver", adminAuthMiddleware, validateDriverId, toggleBlockDriver);
