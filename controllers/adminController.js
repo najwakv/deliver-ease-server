@@ -452,6 +452,26 @@ export const updateProduct = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------AVAILABILITY-OF-PRODUCT------------------------------------------------------------------//
+
+export const toggleIsAvailable = async (req, res) => {
+    try {
+      const productId = req.params.productId;
+      const product = await productModel.findById(productId);
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      product.available = !product.available;
+      await product.save();
+      res
+        .status(200)
+        .json({ message: `Product ${product.available ? "In-stock" : "Out-of-stock"}` });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
 // ------------------------------------------------------------------DELETE-DRIVER------------------------------------------------------------------//
 
 export const deleteDriver = async (req, res) => {
@@ -483,3 +503,19 @@ export const deleteVendor = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// ------------------------------------------------------------------DELETE-PRODUCT------------------------------------------------------------------//
+
+export const deleteProduct = async (req, res) => {
+    try {
+      const productId = req.params.productId;
+      const deletedProduct = await productModel.findByIdAndRemove(productId);
+      if (!deletedProduct) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+      res.status(200).json({ message: "Product deleted successfully" });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };

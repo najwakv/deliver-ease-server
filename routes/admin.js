@@ -1,5 +1,5 @@
 import express from "express";
-import { addCategory, addDriver, addProduct, addVendor, deleteDriver, deleteVendor, doLogin, getCategories, getCategory, getDriver, getDrivers, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
+import { addCategory, addDriver, addProduct, addVendor, deleteDriver, deleteProduct, deleteVendor, doLogin, getCategories, getCategory, getDriver, getDrivers, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, toggleIsAvailable, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
 import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 const router = express.Router();
 
@@ -21,7 +21,9 @@ router.patch("/drivers/:driverId", adminAuthMiddleware, updateDriver);
 router.patch("/drivers/:driverId/toggleBlockDriver", toggleBlockDriver);
 router.patch("/vendors/:vendorId", adminAuthMiddleware, updateVendor);
 router.patch("/products/:productId", adminAuthMiddleware, updateProduct);
+router.patch("/products/:productId/toggleIsAvailable", adminAuthMiddleware, toggleIsAvailable);
 router.delete("/drivers/:driverId", adminAuthMiddleware, deleteDriver);
 router.delete("/vendors/:vendorId", adminAuthMiddleware, deleteVendor);
+router.delete("/products/:productId", adminAuthMiddleware, deleteProduct);
 
 export default router;
