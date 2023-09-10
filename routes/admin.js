@@ -4,6 +4,7 @@ import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 import { validateLogin } from "../validators/adminValidators.js";
 import { validateDriver, validateDriverId, validateUpdateDriver } from "../validators/driverValidators.js";
 import { validateUpdateVendor, validateVendor, validateVendorId } from "../validators/vendorValidators.js";
+import { validateProduct, validateProductId, validateUpdateProduct } from "../validators/productValidators.js";
 const router = express.Router();
 
 
@@ -14,19 +15,19 @@ router.get("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, getVendo
 router.get("/categories", adminAuthMiddleware, getCategories);
 router.get("/categories/:categoryId", adminAuthMiddleware, getCategory);
 router.get("/products", adminAuthMiddleware, getProducts);
-router.get("/products/:productId", adminAuthMiddleware, getProduct);
+router.get("/products/:productId", adminAuthMiddleware, validateProductId, getProduct);
 router.post("/login", validateLogin, doLogin);
 router.post("/drivers/addDriver", adminAuthMiddleware, validateDriver, addDriver);
 router.post("/vendors/addVendor", adminAuthMiddleware, validateVendor, addVendor);
 router.post("/category/addCategory", adminAuthMiddleware, addCategory);
-router.post("/products/addProduct", adminAuthMiddleware, addProduct);
+router.post("/products/addProduct", adminAuthMiddleware, validateProduct, addProduct);
 router.patch("/drivers/:driverId", adminAuthMiddleware, validateDriverId, validateUpdateDriver, updateDriver);
 router.patch("/drivers/:driverId/toggleBlockDriver", adminAuthMiddleware, validateDriverId, toggleBlockDriver);
 router.patch("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, validateUpdateVendor, updateVendor);
-router.patch("/products/:productId", adminAuthMiddleware, updateProduct);
-router.patch("/products/:productId/toggleIsAvailable", adminAuthMiddleware, toggleIsAvailable);
+router.patch("/products/:productId", adminAuthMiddleware, validateProductId, validateUpdateProduct, updateProduct);
+router.patch("/products/:productId/toggleIsAvailable", adminAuthMiddleware, validateProductId, toggleIsAvailable);
 router.delete("/drivers/:driverId", adminAuthMiddleware, validateDriverId, deleteDriver);
 router.delete("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, deleteVendor);
-router.delete("/products/:productId", adminAuthMiddleware, deleteProduct);
+router.delete("/products/:productId", adminAuthMiddleware, validateProductId, deleteProduct);
 
 export default router;
