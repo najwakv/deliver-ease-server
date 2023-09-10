@@ -53,7 +53,7 @@ const driverValidationRules = [
 
 export const validateDriverId = async (req, res, next) => {
   try {
-    for (const rule of validateGetDriverRules) {
+    for (const rule of validateDriverIdRules) {
       await rule.run(req);
     }
     const errors = validationResult(req);
@@ -69,7 +69,7 @@ export const validateDriverId = async (req, res, next) => {
   }
 };
 
-const validateGetDriverRules = [
+const validateDriverIdRules = [
   param("driverId")
     .notEmpty()
     .withMessage("Driver ID is required")
