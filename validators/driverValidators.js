@@ -77,3 +77,44 @@ const validateGetDriverRules = [
     .withMessage("Invalid driver ID format")
     .trim(),
 ];
+
+// --------------------------------------------------------------UPDATE-DRIVER------------------------------------------------------------------//
+
+export const validateUpdateDriver = async (req, res, next) => {
+  try {
+    for (const rule of validateUpdateDriverRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: `Internal Server Error: ${error.message}` });
+  }
+};
+
+const validateUpdateDriverRules = [
+  check("name")
+    .optional()
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("Name can only contain letters and spaces")
+    .trim()
+    .customSanitizer((value) => {
+      return value.replace(/\b\w/g, (match) => match.toUpperCase());
+    }),
+
+  check("mobile")
+    .optional()
+    .isMobilePhone()
+    .withMessage("Invalid mobile phone format")
+    .trim(),
+
+  check("address").optional().trim(),
+
+  check("license").optional().trim(),
+];

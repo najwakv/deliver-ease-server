@@ -28,6 +28,7 @@ const loginValidationRules = [
     .isEmail()
     .withMessage("Invalid email format")
     .normalizeEmail(),
+    
   check("password")
     .isLength({ min: 8 })
     .withMessage("Password Must Be at Least 8 Characters")
