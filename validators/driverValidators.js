@@ -49,6 +49,45 @@ const driverValidationRules = [
   check("license").notEmpty().withMessage("License is required").trim(),
 ];
 
+// --------------------------------------------------------------DRIVER-LOGIN------------------------------------------------------------------//
+
+export const validateDriverLogin = async (req, res, next) => {
+  try {
+    for (const rule of driverLoginValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: `Internal Server Error: ${error.message}` });
+  }
+};
+
+const driverLoginValidationRules = [
+  check("mobile")
+    .notEmpty()
+    .withMessage("Mobile is required")
+    .isMobilePhone()
+    .withMessage("Invalid mobile phone format")
+    .trim(),
+
+  check("password")
+    .isLength({ min: 8 })
+    .withMessage("Password Must Be at Least 8 Characters")
+    .matches("[0-9]")
+    .withMessage("Password Must Contain a Number")
+    .matches("[A-Z]")
+    .withMessage("Password Must Contain an Uppercase Letter")
+    .trim()
+    .escape(),
+];
+
 // --------------------------------------------------------------DRIVER-ID------------------------------------------------------------------//
 
 export const validateDriverId = async (req, res, next) => {
