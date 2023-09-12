@@ -44,6 +44,41 @@ export const getVendor = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------GET-ORDERS------------------------------------------------------------------//
+
+export const getOrders = async (req, res) => {
+  const driverId = req.driverId;
+  try {
+    const orders = await orderModel
+      .find({ driver: driverId })
+      .populate("items", "_id product quantity totalPrice")
+      .populate({
+        path: "items.product",
+        select: "_id name price",
+        populate: {
+          path: "category",
+          select: "_id name",
+        },
+      })
+      .populate("vendor", "_id name mobile location email address")
+      .select("-driver");
+
+    if (orders.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Orders found for this driver.")
+        .send();
+    } else {
+      res.status(200).json(orders);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Unable to get orders. An internal server error occurred.",
+    });
+  }
+};
+
 // ------------------------------------------------------------------DRIVER-LOGIN------------------------------------------------------------------//
 
 export const doLogin = async (req, res) => {

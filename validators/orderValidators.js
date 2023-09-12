@@ -92,3 +92,51 @@ const orderIdValidationRules = [
     .withMessage("Invalid Order ID format")
     .trim(),
 ];
+
+export const validateCreateBill = async (req, res, next) => {
+  try {
+    for (const rule of createBillValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: `Internal Server Error: ${error.message}` });
+  }
+};
+
+const createBillValidationRules = [
+  check("items").isArray().withMessage("Items should be an array"),
+
+  check("items.*.product")
+    .isString()
+    .notEmpty()
+    .withMessage("Product ID is required and should be a non-empty string")
+    .trim(),
+
+  check("items.*.quantity")
+    .isInt({ min: 1 })
+    .withMessage("Quantity should be a positive integer")
+    .trim(),
+
+  check("items.*.totalPrice")
+    .isFloat({ min: 0 })
+    .withMessage("Total Price should be a positive float number")
+    .trim(),
+
+  check("totalAmount")
+    .isFloat({ min: 0 })
+    .withMessage("Total Amount should be a positive float number")
+    .trim(),
+
+  check("collectedAmount")
+    .isFloat({ min: 0 })
+    .withMessage("Collected Amount should be a positive float number")
+    .trim(),
+];
