@@ -169,6 +169,29 @@ export const getProduct = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------GET-AVAILABLE-PRODUCT------------------------------------------------------------------//
+
+export const getAvailableProduct = async (req, res) => {
+  try {
+    const products = await productModel
+      .find({ available : true})
+      .populate("category", "_id name block");
+    if (products.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Products found in the database.")
+        .send();
+    } else {
+      res.status(200).json(products);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Unable to get Product list. An internal server error occurred.",
+    });
+  }
+};
+
 // ------------------------------------------------------------------ADMIN-LOGIN------------------------------------------------------------------//
 
 export const doLogin = async (req, res) => {
@@ -321,6 +344,10 @@ export const addProduct = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------CREATE-ORDER------------------------------------------------------------------//
+
+export const addOrder = async (req, res) => {};
+
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
 export const updateDriver = async (req, res) => {
@@ -455,22 +482,24 @@ export const updateProduct = async (req, res) => {
 // ------------------------------------------------------------------AVAILABILITY-OF-PRODUCT------------------------------------------------------------------//
 
 export const toggleIsAvailable = async (req, res) => {
-    try {
-      const productId = req.params.productId;
-      const product = await productModel.findById(productId);
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      product.available = !product.available;
-      await product.save();
-      res
-        .status(200)
-        .json({ message: `Product ${product.available ? "In-stock" : "Out-of-stock"}` });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    const productId = req.params.productId;
+    const product = await productModel.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
     }
-  };
+    product.available = !product.available;
+    await product.save();
+    res
+      .status(200)
+      .json({
+        message: `Product ${product.available ? "In-stock" : "Out-of-stock"}`,
+      });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 // ------------------------------------------------------------------DELETE-DRIVER------------------------------------------------------------------//
 
@@ -507,15 +536,15 @@ export const deleteVendor = async (req, res) => {
 // ------------------------------------------------------------------DELETE-PRODUCT------------------------------------------------------------------//
 
 export const deleteProduct = async (req, res) => {
-    try {
-      const productId = req.params.productId;
-      const deletedProduct = await productModel.findByIdAndRemove(productId);
-      if (!deletedProduct) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.status(200).json({ message: "Product deleted successfully" });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Internal server error" });
+  try {
+    const productId = req.params.productId;
+    const deletedProduct = await productModel.findByIdAndRemove(productId);
+    if (!deletedProduct) {
+      return res.status(404).json({ message: "Product not found" });
     }
-  };
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

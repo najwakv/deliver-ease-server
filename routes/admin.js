@@ -1,5 +1,5 @@
 import express from "express";
-import { addCategory, addDriver, addProduct, addVendor, deleteDriver, deleteProduct, deleteVendor, doLogin, getCategories, getCategory, getDriver, getDrivers, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, toggleIsAvailable, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
+import { addCategory, addDriver, addOrder, addProduct, addVendor, deleteDriver, deleteProduct, deleteVendor, doLogin, getAvailableProduct, getCategories, getCategory, getDriver, getDrivers, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, toggleIsAvailable, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
 import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 import { validateLogin } from "../validators/adminValidators.js";
 import { validateDriver, validateDriverId, validateUpdateDriver } from "../validators/driverValidators.js";
@@ -16,12 +16,14 @@ router.get("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, getVendo
 router.get("/categories", adminAuthMiddleware, getCategories);
 router.get("/categories/:categoryId", adminAuthMiddleware, validateCategoryId, getCategory);
 router.get("/products", adminAuthMiddleware, getProducts);
+router.get("/products/getAvailableProduct", adminAuthMiddleware, getAvailableProduct);
 router.get("/products/:productId", adminAuthMiddleware, validateProductId, getProduct);
 router.post("/login", validateLogin, doLogin);
 router.post("/drivers/addDriver", adminAuthMiddleware, validateDriver, addDriver);
 router.post("/vendors/addVendor", adminAuthMiddleware, validateVendor, addVendor);
 router.post("/category/addCategory", adminAuthMiddleware, validateCategory, addCategory);
 router.post("/products/addProduct", adminAuthMiddleware, validateProduct, addProduct);
+router.post("/orders/addOrder", adminAuthMiddleware, addOrder);
 router.patch("/drivers/:driverId", adminAuthMiddleware, validateDriverId, validateUpdateDriver, updateDriver);
 router.patch("/drivers/:driverId/toggleBlockDriver", adminAuthMiddleware, validateDriverId, toggleBlockDriver);
 router.patch("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, validateUpdateVendor, updateVendor);
