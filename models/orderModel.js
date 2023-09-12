@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const Objectid = mongoose.Types.ObjectId;
 
 const orderSchema = new Schema({
-    products: [
+    items: [
         {
             product: {
                 type: Objectid,

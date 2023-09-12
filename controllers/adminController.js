@@ -5,6 +5,7 @@ import driverModel from "../models/driverModel.js";
 import vendorModel from "../models/vendorModel.js";
 import categoryModel from "../models/categoryModel.js";
 import productModel from "../models/productModel.js";
+import orderModel from "../models/orderModel.js";
 
 // ------------------------------------------------------------------GET-ALL-DRIVERS------------------------------------------------------------------//
 
@@ -174,7 +175,7 @@ export const getProduct = async (req, res) => {
 export const getAvailableProduct = async (req, res) => {
   try {
     const products = await productModel
-      .find({ available : true})
+      .find({ available: true })
       .populate("category", "_id name block");
     if (products.length === 0) {
       res
@@ -188,6 +189,50 @@ export const getAvailableProduct = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message: "Unable to get Product list. An internal server error occurred.",
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-ORDERS------------------------------------------------------------------//
+
+export const getOrders = async (req, res) => {
+  try {
+    const orders = await orderModel
+      .find()
+      .populate("items", "_id product quantity totalPrice");
+    if (orders.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Products found in the database.")
+        .send();
+    } else {
+      res.status(200).json(orders);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Unable to get Product list. An internal server error occurred.",
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-AN-ORDER------------------------------------------------------------------//
+
+export const getOrder = async (req, res) => {
+  try {
+    const orderId = req.params.orderId;
+    const order = await orderModel
+      .findOne({ _id: orderId })
+      .populate("items", "_id product quantity totalPrice");
+    if (order.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(order);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message:
+        "Unable to get Product details. An internal server error occurred.",
     });
   }
 };
@@ -346,7 +391,25 @@ export const addProduct = async (req, res) => {
 
 // ------------------------------------------------------------------CREATE-ORDER------------------------------------------------------------------//
 
-export const addOrder = async (req, res) => {};
+export const addOrder = async (req, res) => {
+  try {
+    const newOrder = new orderModel(req.body);
+    await newOrder.save();
+    const response = {
+      message: "Order created successfully",
+      newOrder,
+    };
+    if (!newOrder || newOrder._id == null) {
+      return res.status(500).json({ message: "Order creation failed" });
+    }
+    res.status(201).json(response);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: "Internal Server Error: " + error.message });
+  }
+};
 
 // ------------------------------------------------------------------UPDATE-DRIVER-DETAILS------------------------------------------------------------------//
 
@@ -490,11 +553,9 @@ export const toggleIsAvailable = async (req, res) => {
     }
     product.available = !product.available;
     await product.save();
-    res
-      .status(200)
-      .json({
-        message: `Product ${product.available ? "In-stock" : "Out-of-stock"}`,
-      });
+    res.status(200).json({
+      message: `Product ${product.available ? "In-stock" : "Out-of-stock"}`,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
