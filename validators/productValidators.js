@@ -1,24 +1,6 @@
 import { check, param, validationResult } from "express-validator";
 
-// --------------------------------------------------------------VENDOR-REGISTRATION------------------------------------------------------------------//
-
-export const validateProduct = async (req, res, next) => {
-  try {
-    for (const rule of productValidationRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
+// --------------------------------------------------------------ADDING-PRODUCT-------------------------------------------------------------------//
 
 const productValidationRules = [
   check("name")
@@ -35,23 +17,57 @@ const productValidationRules = [
     .notEmpty()
     .withMessage("Price is required")
     .isNumeric()
-    .withMessage("Price must be a valid number"),
+    .withMessage("Price must be a valid number")
+    .trim(),
 
   check("categoryId")
     .notEmpty()
     .withMessage("Category ID is required")
     .isMongoId()
-    .withMessage("Category ID must be a valid ObjectId"),
+    .withMessage("Category ID must be a valid ObjectId")
+    .trim(),
 
-  check("image").optional().isURL().withMessage("Image must be a valid URL"),
+  check("image")
+    .optional()
+    .isURL()
+    .withMessage("Image must be a valid URL")
+    .trim(),
 
   check("quantity")
     .optional()
-    .isInt({ min: 0 })
-    .withMessage("Quantity must be a positive integer"),
+    .isInt({ min: 1 })
+    .withMessage("Quantity must be a positive integer")
+    .trim(),
 ];
 
+export const validateProduct = async (req, res, next) => {
+  try {
+    for (const rule of productValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Internal Server Error: occurred while validating. ${error.message}`,
+    });
+  }
+};
+
 // --------------------------------------------------------------PRODUCT-ID------------------------------------------------------------------//
+
+const validateProductIdRules = [
+  param("productId")
+    .notEmpty()
+    .withMessage("Product ID is required")
+    .isMongoId()
+    .withMessage("Invalid product ID format")
+    .trim(),
+];
 
 export const validateProductId = async (req, res, next) => {
   try {
@@ -65,22 +81,48 @@ export const validateProductId = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+    res.status(500).json({
+      message: `Internal Server Error: occurred while validating.${error.message}`,
+    });
   }
 };
 
-const validateProductIdRules = [
-  param("vendorId")
-    .notEmpty()
-    .withMessage("Product ID is required")
+// --------------------------------------------------------------UPDATE-PRODUCT------------------------------------------------------------------//
+
+const validateUpdateProductRules = [
+  check("name")
+    .optional()
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("Name can only contain letters and spaces")
+    .trim()
+    .customSanitizer((value) => {
+      return value.replace(/\b\w/g, (match) => match.toUpperCase());
+    }),
+
+  check("price")
+    .optional()
+    .isNumeric()
+    .withMessage("Price must be a valid number")
+    .trim(),
+
+  check("categoryId")
+    .optional()
     .isMongoId()
-    .withMessage("Invalid product ID format")
+    .withMessage("Category ID must be a valid ObjectId")
+    .trim(),
+
+  check("image")
+    .optional()
+    .isURL()
+    .withMessage("Image must be a valid URL")
+    .trim(),
+
+  check("quantity")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Quantity must be a positive integer")
     .trim(),
 ];
-
-// --------------------------------------------------------------UPDATE-PRODUCT------------------------------------------------------------------//
 
 export const validateUpdateProduct = async (req, res, next) => {
   try {
@@ -96,34 +138,8 @@ export const validateUpdateProduct = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({
+        message: `Internal Server Error: occurred while validating. ${error.message}`,
+      });
   }
 };
-
-const validateUpdateProductRules = [
-  check("name")
-    .optional()
-    .matches(/^[A-Za-z\s]+$/)
-    .withMessage("Name can only contain letters and spaces")
-    .trim()
-    .customSanitizer((value) => {
-      return value.replace(/\b\w/g, (match) => match.toUpperCase());
-    }),
-
-  check("price")
-    .optional()
-    .isNumeric()
-    .withMessage("Price must be a valid number"),
-
-  check("categoryId")
-    .optional()
-    .isMongoId()
-    .withMessage("Category ID must be a valid ObjectId"),
-
-  check("image").optional().isURL().withMessage("Image must be a valid URL"),
-
-  check("quantity")
-    .optional()
-    .isInt({ min: 0 })
-    .withMessage("Quantity must be a positive integer"),
-];

@@ -142,7 +142,7 @@ export const getProducts = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Unable to get Product list. An internal server error occurred.",
+      message: `Internal Server Erroe: Unable to get Product list ${error.message}`,
     });
   }
 };
@@ -162,8 +162,7 @@ export const getProduct = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Product details. An internal server error occurred.",
+      message: `Internal Server Error : Unable to get Product details. ${error.message}`,
     });
   }
 };
@@ -361,21 +360,18 @@ export const addCategory = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     const { name, price, categoryId, image, quantity, available } = req.body;
-
     const existingProduct = await productModel.findOne({
       name: { $regex: new RegExp(`${name}`, "i") },
     });
     if (existingProduct) {
       return res
-        .status(400)
-        .json({ error: `Product with the name ${name} already exists` });
+        .status(409)
+        .json({ message: `Product with the name already exists` });
     }
-
     const category = await categoryModel.findById(categoryId);
     if (!category) {
-      return res.status(400).json({ error: "Category not found" });
+      return res.status(404).json({ error: "Category not found" });
     }
-
     const newProduct = await productModel.create({
       name,
       price,
@@ -387,11 +383,14 @@ export const addProduct = async (req, res) => {
       quantity,
       available,
     });
-
-    res.status(201).json({ message: "Product added.", newProduct });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
+    res
+      .status(201)
+      .json({ message: "Product added Successfully.", newProduct });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Internal server error: Unable to Add Product ${error.message}`,
+    });
   }
 };
 
@@ -546,7 +545,9 @@ export const updateProduct = async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({
+      message: `Internal Server Error : Unable to Update Product details. ${error.message}`,
+    });
   }
 };
 
@@ -618,6 +619,10 @@ export const deleteProduct = async (req, res) => {
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res
+      .status(500)
+      .json({
+        message: `Internal server error: Unable to delete Product ${error.message}`,
+      });
   }
 };
