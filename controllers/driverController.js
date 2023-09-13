@@ -67,6 +67,26 @@ export const getAvailableProduct = async (req, res) => {
   }
 };
 
+// ------------------------------------------------------------------GET-AN-PRODUCT------------------------------------------------------------------//
+
+export const getProduct = async (req, res) => {
+  try {
+    const productId = req.params.productId;
+    const product = await productModel
+      .findOne({ _id: productId })
+      .populate("category", "_id name block");
+    if (product.length === 0) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    res.status(200).json(product);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Internal Server Error : Unable to get Product details. ${error.message}`,
+    });
+  }
+};
+
 // ------------------------------------------------------------------GET-ORDERS------------------------------------------------------------------//
 
 export const getOrders = async (req, res) => {
@@ -162,10 +182,8 @@ export const createBill = async (req, res) => {
     };
     res.status(201).json(response);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: `Internal server error: Unable to Create Order ${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal server error: Unable to Create Order ${error.message}`,
+    });
   }
 };
