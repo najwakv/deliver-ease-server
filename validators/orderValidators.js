@@ -2,31 +2,15 @@ import { check, param, validationResult } from "express-validator";
 
 // --------------------------------------------------------------CREATE-ORDER------------------------------------------------------------------//
 
-export const validateOrder = async (req, res, next) => {
-  try {
-    for (const rule of orderValidationRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
-
 const orderValidationRules = [
   check("items").isArray().withMessage("Items should be an array"),
 
   check("items.*.product")
     .isString()
     .notEmpty()
-    .withMessage("Product ID is required and should be a non-empty string")
+    .withMessage("Product ID is required .")
+    .isMongoId()
+    .withMessage("Product ID must be a valid ObjectId")
     .trim(),
 
   check("items.*.quantity")
@@ -35,7 +19,7 @@ const orderValidationRules = [
     .trim(),
 
   check("items.*.totalPrice")
-    .isFloat({ min: 0 })
+    .isFloat()
     .withMessage("Total Price should be a positive float number")
     .trim(),
 
@@ -54,7 +38,7 @@ const orderValidationRules = [
     .trim(),
 
   check("totalAmount")
-    .isFloat({ min: 0 })
+    .isFloat()
     .withMessage("Total Amount should be a positive float number")
     .trim(),
 
@@ -64,7 +48,36 @@ const orderValidationRules = [
     .trim(),
 ];
 
+export const validateOrder = async (req, res, next) => {
+  try {
+    for (const rule of orderValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        message: `Internal Server Error: occurred while validating.${error.message}`,
+      });
+  }
+};
+
 // --------------------------------------------------------------GET-AN-ORDER------------------------------------------------------------------//
+
+const orderIdValidationRules = [
+  param("orderId")
+    .notEmpty()
+    .withMessage("Order ID is required")
+    .isMongoId()
+    .withMessage("Invalid Order ID format")
+    .trim(),
+];
 
 export const validateOrderId = async (req, res, next) => {
   try {
@@ -80,18 +93,9 @@ export const validateOrderId = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({ message: `Internal Server Error: occurred while validating.${error.message}` });
   }
 };
-
-const orderIdValidationRules = [
-  param("orderId")
-    .notEmpty()
-    .withMessage("Order ID is required")
-    .isMongoId()
-    .withMessage("Invalid Order ID format")
-    .trim(),
-];
 
 export const validateCreateBill = async (req, res, next) => {
   try {

@@ -196,11 +196,21 @@ export const getOrders = async (req, res) => {
   try {
     const orders = await orderModel
       .find()
-      .populate("items", "_id product quantity totalPrice");
+      .populate("items", "_id product quantity totalPrice")
+      .populate({
+        path: "items.product",
+        select: "_id name price",
+        populate: {
+          path: "category",
+          select: "_id name",
+        },
+      })
+      .populate("vendor", "_id name mobile location email address")
+      .populate("driver", "_id name mobile address");
     if (orders.length === 0) {
       res
         .status(204)
-        .header("X-No-Data-Message", "No Products found in the database.")
+        .header("X-No-Data-Message", "No Orders found in the database.")
         .send();
     } else {
       res.status(200).json(orders);
@@ -208,7 +218,7 @@ export const getOrders = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Unable to get Product list. An internal server error occurred.",
+      message: `Internal Server Erroe: Unable to get Order list ${error.message}`,
     });
   }
 };
@@ -220,16 +230,25 @@ export const getOrder = async (req, res) => {
     const orderId = req.params.orderId;
     const order = await orderModel
       .findOne({ _id: orderId })
-      .populate("items", "_id product quantity totalPrice");
+      .populate("items", "_id product quantity totalPrice")
+      .populate({
+        path: "items.product",
+        select: "_id name price",
+        populate: {
+          path: "category",
+          select: "_id name",
+        },
+      })
+      .populate("vendor", "_id name mobile location email address")
+      .populate("driver", "_id name mobile address");
     if (order.length === 0) {
-      return res.status(404).json({ message: "Product not found" });
+      return res.status(404).json({ message: "Order not found" });
     }
     res.status(200).json(order);
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Product details. An internal server error occurred.",
+      message: `Internal Server Error : Unable to get Order details. ${error.message}`,
     });
   }
 };
@@ -404,15 +423,12 @@ export const addOrder = async (req, res) => {
       message: "Order created successfully",
       newOrder,
     };
-    if (!newOrder || newOrder._id == null) {
-      return res.status(500).json({ message: "Order creation failed" });
-    }
     res.status(201).json(response);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "Internal Server Error: " + error.message });
+    res.status(500).json({
+      message: `Internal server error: Unable to Create Order ${error.message}`,
+    });
   }
 };
 
@@ -619,10 +635,8 @@ export const deleteProduct = async (req, res) => {
     res.status(200).json({ message: "Product deleted successfully" });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: `Internal server error: Unable to delete Product ${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal server error: Unable to delete Product ${error.message}`,
+    });
   }
 };
