@@ -22,7 +22,11 @@ export const getDrivers = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Unable to get Driver list" });
+    res
+      .status(500)
+      .json({
+        message: `Internal Server Erroe: Unable to get Driver list${error.message}`,
+      });
   }
 };
 
@@ -40,7 +44,7 @@ export const getDriver = async (req, res) => {
     console.error(error);
     res.status(500).json({
       message:
-        "Unable to get Driver details. An internal server error occurred.",
+        `Internal Server Error : Unable to get Driver details.`,
     });
   }
 };
@@ -247,7 +251,9 @@ export const doLogin = async (req, res) => {
       bcrypt.compare(password, admin.password, (error, result) => {
         if (error) {
           console.error(error);
-          return res.status(500).json({ message: `Internal Server Error: Unable to compare passwords. ${error.message}` });
+          return res.status(500).json({
+            message: `Internal Server Error: Unable to compare passwords. ${error.message}`,
+          });
         }
         if (result) {
           const token = generateToken({ adminId: admin._id });
@@ -263,13 +269,15 @@ export const doLogin = async (req, res) => {
         }
       });
     } else {
-      res.status(404).json({ message: "Admin not found. Please check your email." });
+      res
+        .status(404)
+        .json({ message: "Admin not found. Please check your email." });
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: Please try again later. ${error.message}` });
+    res.status(500).json({
+      message: `Internal Server Error: Please try again later. ${error.message}`,
+    });
   }
 };
 
@@ -297,9 +305,9 @@ export const addDriver = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "An error occurred. Please try again later." });
+    res.status(500).json({
+      message: `An error occurred. Please try again later.  ${error.message}`,
+    });
   }
 };
 
@@ -574,7 +582,7 @@ export const deleteDriver = async (req, res) => {
     res.status(200).json({ message: "Driver deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: `Internal server error: Unable to delete Driver ${error.message}` });
   }
 };
 
