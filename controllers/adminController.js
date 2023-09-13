@@ -22,11 +22,9 @@ export const getDrivers = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: `Internal Server Erroe: Unable to get Driver list${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal Server Erroe: Unable to get Driver list${error.message}`,
+    });
   }
 };
 
@@ -43,8 +41,7 @@ export const getDriver = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        `Internal Server Error : Unable to get Driver details.`,
+      message: `Internal Server Error : Unable to get Driver details.`,
     });
   }
 };
@@ -65,7 +62,7 @@ export const getVendors = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Unable to get Vendor list. An internal server error occurred.",
+      message: `Internal Server Erroe: Unable to get Vendor list ${error.message}`,
     });
   }
 };
@@ -83,8 +80,7 @@ export const getVendor = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Vendor details. An internal server error occurred.",
+      message: "Internal Server Error : Unable to get Vendor details.",
     });
   }
 };
@@ -306,7 +302,7 @@ export const addDriver = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: `An error occurred. Please try again later.  ${error.message}`,
+      message: `Internal server error: Unable to Register Driver ${error.message}`,
     });
   }
 };
@@ -334,7 +330,9 @@ export const addVendor = async (req, res) => {
     return res.status(201).json({ message: "Vendor registration successful." });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({
+      message: `Internal server error: Unable to Register Vendor ${error.message}`,
+    });
   }
 };
 
@@ -509,7 +507,9 @@ export const updateVendor = async (req, res) => {
     res.status(200).json(response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({
+      message: `Internal Server Error : Unable to get Vendor details. ${error.message}`,
+    });
   }
 };
 
@@ -582,7 +582,9 @@ export const deleteDriver = async (req, res) => {
     res.status(200).json({ message: "Driver deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: `Internal server error: Unable to delete Driver ${error.message}` });
+    res.status(500).json({
+      message: `Internal server error: Unable to delete Driver ${error.message}`,
+    });
   }
 };
 
@@ -598,7 +600,11 @@ export const deleteVendor = async (req, res) => {
     res.status(200).json({ message: "Vendor deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res
+      .status(500)
+      .json({
+        message: `Internal server error: Unable to delete Vendor ${error.message}`,
+      });
   }
 };
 

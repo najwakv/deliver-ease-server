@@ -2,24 +2,6 @@ import { check, param, validationResult } from "express-validator";
 
 // --------------------------------------------------------------VENDOR-REGISTRATION------------------------------------------------------------------//
 
-export const validateVendor = async (req, res, next) => {
-  try {
-    for (const rule of vendorValidationRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
-
 const vendorValidationRules = [
   check("name")
     .notEmpty()
@@ -34,15 +16,16 @@ const vendorValidationRules = [
   check("mobile")
     .notEmpty()
     .withMessage("Mobile is required")
-    .isString()
-    .withMessage("Mobile must be a string")
+    .isMobilePhone()
+    .withMessage("Invalid mobile phone format")
     .trim(),
 
   check("location")
     .optional()
     .isString()
     .withMessage("Location must be a string")
-    .trim(),
+    .trim()
+    .escape(),
 
   check("email")
     .trim()
@@ -52,10 +35,38 @@ const vendorValidationRules = [
     .withMessage("Invalid email format")
     .normalizeEmail(),
 
-  check("address").optional().trim(),
+  check("address").optional().trim().escape(),
 ];
 
+export const validateVendor = async (req, res, next) => {
+  try {
+    for (const rule of vendorValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Internal Server Error: occurred while validating. ${error.message}`,
+    });
+  }
+};
+
 // --------------------------------------------------------------VENDOR-ID------------------------------------------------------------------//
+
+const validateVendorIdRules = [
+  param("vendorId")
+    .notEmpty()
+    .withMessage("Vendor ID is required")
+    .isMongoId()
+    .withMessage("Invalid vendor ID format")
+    .trim()
+    .escape(),
+];
 
 export const validateVendorId = async (req, res, next) => {
   try {
@@ -71,38 +82,13 @@ export const validateVendorId = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({
+        message: `Internal Server Error: occurred while validating.${error.message}`,
+      });
   }
 };
-
-const validateVendorIdRules = [
-  param("vendorId")
-    .notEmpty()
-    .withMessage("Vendor ID is required")
-    .isMongoId()
-    .withMessage("Invalid vendor ID format")
-    .trim(),
-];
 
 // --------------------------------------------------------------UPDATE-VENDOR------------------------------------------------------------------//
-
-export const validateUpdateVendor = async (req, res, next) => {
-  try {
-    for (const rule of validateUpdateVendorRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
 
 const validateUpdateVendorRules = [
   check("name")
@@ -135,3 +121,23 @@ const validateUpdateVendorRules = [
 
   check("address").optional().trim(),
 ];
+
+export const validateUpdateVendor = async (req, res, next) => {
+  try {
+    for (const rule of validateUpdateVendorRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        message: `Internal Server Error: occurred while validating.${error.message}`,
+      });
+  }
+};
