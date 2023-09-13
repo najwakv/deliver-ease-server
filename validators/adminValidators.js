@@ -1,6 +1,6 @@
 import { check, validationResult } from "express-validator";
 
-// --------------------------------------------------------------ADMIN-LOGIN-VALIDATOR------------------------------------------------------------------//
+// --------------------------------------------------------------ADMIN-LOGIN-------------------------------------------------------------------//
 
 const loginValidationRules = [
   check("email")
@@ -12,13 +12,15 @@ const loginValidationRules = [
     .normalizeEmail(),
 
   check("password")
+  .trim()
+    .notEmpty()
+    .withMessage("Password is required")
     .isLength({ min: 8 })
     .withMessage("Password Must Be at Least 8 Characters")
     .matches("[0-9]")
     .withMessage("Password Must Contain a Number")
     .matches("[A-Z]")
     .withMessage("Password Must Contain an Uppercase Letter")
-    .trim()
     .escape(),
 ];
 
@@ -36,6 +38,6 @@ export const validateLogin = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({ message: `Internal Server Error: occurred while validating. ${error.message}` });
   }
 };

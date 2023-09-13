@@ -244,10 +244,10 @@ export const doLogin = async (req, res) => {
     const { email, password } = req.body;
     const admin = await adminModel.findOne({ email });
     if (admin) {
-      bcrypt.compare(password, admin.password, (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Internal Server Error: Unable to compare passwords" });
+      bcrypt.compare(password, admin.password, (error, result) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({ message: `Internal Server Error: Unable to compare passwords. ${error.message}` });
         }
         if (result) {
           const token = generateToken({ adminId: admin._id });
@@ -269,7 +269,7 @@ export const doLogin = async (req, res) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: "An error occurred. Please try again later." });
+      .json({ message: `Internal Server Error: Please try again later. ${error.message}` });
   }
 };
 
