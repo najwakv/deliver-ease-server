@@ -2,6 +2,26 @@ import { check, validationResult } from "express-validator";
 
 // --------------------------------------------------------------ADMIN-LOGIN-VALIDATOR------------------------------------------------------------------//
 
+const loginValidationRules = [
+  check("email")
+    .trim()
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Invalid email format")
+    .normalizeEmail(),
+
+  check("password")
+    .isLength({ min: 8 })
+    .withMessage("Password Must Be at Least 8 Characters")
+    .matches("[0-9]")
+    .withMessage("Password Must Contain a Number")
+    .matches("[A-Z]")
+    .withMessage("Password Must Contain an Uppercase Letter")
+    .trim()
+    .escape(),
+];
+
 export const validateLogin = async (req, res, next) => {
   try {
     for (const rule of loginValidationRules) {
@@ -19,25 +39,3 @@ export const validateLogin = async (req, res, next) => {
       .json({ message: `Internal Server Error: ${error.message}` });
   }
 };
-
-const loginValidationRules = [
-  check("email")
-    .trim()
-    .notEmpty()
-    .withMessage("Email is required")
-    .isEmail()
-    .withMessage("Invalid email format")
-    .normalizeEmail(),
-    
-  check("password")
-    .isLength({ min: 8 })
-    .withMessage("Password Must Be at Least 8 Characters")
-    .matches("[0-9]")
-    .withMessage("Password Must Contain a Number")
-    .matches("[A-Z]")
-    .withMessage("Password Must Contain an Uppercase Letter")
-    .trim()
-    .escape(),
-];
-
-

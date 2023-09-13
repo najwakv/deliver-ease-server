@@ -247,13 +247,13 @@ export const doLogin = async (req, res) => {
       bcrypt.compare(password, admin.password, (err, result) => {
         if (err) {
           console.error(err);
-          return res.status(500).json({ message: "Internal Server Error" });
+          return res.status(500).json({ message: "Internal Server Error: Unable to compare passwords" });
         }
         if (result) {
           const token = generateToken({ adminId: admin._id });
           const response = {
             token,
-            message: "Admin login successfull",
+            message: "Admin login successfull.",
           };
           res.status(200).json(response);
         } else {
@@ -263,7 +263,7 @@ export const doLogin = async (req, res) => {
         }
       });
     } else {
-      res.status(404).json({ message: "Admin not found" });
+      res.status(404).json({ message: "Admin not found. Please check your email." });
     }
   } catch (error) {
     console.error(error);
