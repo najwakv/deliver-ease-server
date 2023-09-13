@@ -2,6 +2,18 @@ import { check, param, validationResult } from "express-validator";
 
 // --------------------------------------------------------------CATEGORY-CREATION-------------------------------------------------------------------//
 
+const categoryValidationRules = [
+  check("name")
+    .notEmpty()
+    .withMessage("Name is required")
+    .matches(/^[A-Za-z\s]+$/)
+    .withMessage("Name can only contain letters and spaces")
+    .trim()
+    .customSanitizer((value) => {
+      return value.replace(/\b\w/g, (match) => match.toUpperCase());
+    }),
+];
+
 export const validateCategory = async (req, res, next) => {
   try {
     for (const rule of categoryValidationRules) {
@@ -16,23 +28,22 @@ export const validateCategory = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({
+        message: `Internal Server Error: occurred while validating. ${error.message}`,
+      });
   }
 };
 
-const categoryValidationRules = [
-  check("name")
-    .notEmpty()
-    .withMessage("Name is required")
-    .matches(/^[A-Za-z\s]+$/)
-    .withMessage("Name can only contain letters and spaces")
-    .trim()
-    .customSanitizer((value) => {
-      return value.replace(/\b\w/g, (match) => match.toUpperCase());
-    }),
-];
-
 // --------------------------------------------------------------CATEGORY-ID------------------------------------------------------------------//
+
+const validateCategoryIdRules = [
+  param("categoryId")
+    .notEmpty()
+    .withMessage("category ID is required")
+    .isMongoId()
+    .withMessage("Invalid category ID format")
+    .trim(),
+];
 
 export const validateCategoryId = async (req, res, next) => {
   try {
@@ -48,15 +59,6 @@ export const validateCategoryId = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
+      .json({ message: `Internal Server Error: occurred while validating. ${error.message}` });
   }
 };
-
-const validateCategoryIdRules = [
-  param("categoryId")
-    .notEmpty()
-    .withMessage("category ID is required")
-    .isMongoId()
-    .withMessage("Invalid category ID format")
-    .trim(),
-];

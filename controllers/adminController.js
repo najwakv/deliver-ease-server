@@ -101,8 +101,7 @@ export const getCategories = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Category list. An internal server error occurred.",
+      message: `Internal Server Erroe: Unable to get Category list ${error.message}`,
     });
   }
 };
@@ -120,8 +119,7 @@ export const getCategory = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Category details. An internal server error occurred.",
+      message: `Internal Server Error : Unable to get Category details. ${error.message}`,
     });
   }
 };
@@ -345,14 +343,16 @@ export const addCategory = async (req, res) => {
       name: { $regex: new RegExp(`${name}`, "i") },
     });
     if (existingCategory) {
-      return res.status(409).json({ error: "Category already exists." });
+      return res.status(409).json({ message: "Category already exists." });
     }
     const newCategory = new categoryModel({ name });
     await newCategory.save();
     return res.status(201).json({ message: "Category added successfully." });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({
+      message: `Internal server error: Unable to Register Vendor ${error.message}`,
+    });
   }
 };
 
@@ -600,11 +600,9 @@ export const deleteVendor = async (req, res) => {
     res.status(200).json({ message: "Vendor deleted successfully" });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: `Internal server error: Unable to delete Vendor ${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal server error: Unable to delete Vendor ${error.message}`,
+    });
   }
 };
 
