@@ -1,4 +1,4 @@
-# React-Weather-App
+# Wholesale Delivery Management App
 The Wholesale Delivery Management App is designed to facilitate the efficient distribution of
 goods from wholesalers to retail vendors. It enables truck drivers to manage orders and
 track vendor-related information.
