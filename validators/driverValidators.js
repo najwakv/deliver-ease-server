@@ -55,24 +55,6 @@ export const validateDriver = async (req, res, next) => {
 
 // --------------------------------------------------------------DRIVER-LOGIN------------------------------------------------------------------//
 
-export const validateDriverLogin = async (req, res, next) => {
-  try {
-    for (const rule of driverLoginValidationRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
-
 const driverLoginValidationRules = [
   check("mobile")
     .notEmpty()
@@ -91,6 +73,24 @@ const driverLoginValidationRules = [
     .trim()
     .escape(),
 ];
+
+export const validateDriverLogin = async (req, res, next) => {
+  try {
+    for (const rule of driverLoginValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ message: `Internal Server Error occurred while validating. ${error.message}` });
+  }
+};
 
 // --------------------------------------------------------------DRIVER-ID------------------------------------------------------------------//
 
@@ -156,10 +156,8 @@ export const validateUpdateDriver = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: `Internal Server Error: occurred while validating. ${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal Server Error: occurred while validating. ${error.message}`,
+    });
   }
 };

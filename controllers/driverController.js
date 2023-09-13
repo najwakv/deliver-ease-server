@@ -3,6 +3,7 @@ import driverModel from "../models/driverModel.js";
 import { generateToken } from "../utils/generateJWT.js";
 import vendorModel from "../models/vendorModel.js";
 import orderModel from "../models/orderModel.js";
+import productModel from "../models/productModel.js";
 
 // ------------------------------------------------------------------GET-VENDORS------------------------------------------------------------------//
 
@@ -20,7 +21,7 @@ export const getVendors = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Unable to get Vendor list. An internal server error occurred.",
+      message: `Internal Server Erroe: Unable to get Vendor list ${error.message}`,
     });
   }
 };
@@ -38,8 +39,30 @@ export const getVendor = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message:
-        "Unable to get Vendor details. An internal server error occurred.",
+      message: `Internal Server Error : Unable to get Vendor details. ${error.message}`,
+    });
+  }
+};
+
+// ------------------------------------------------------------------GET-AVAILABLE-PRODUCT------------------------------------------------------------------//
+
+export const getAvailableProduct = async (req, res) => {
+  try {
+    const products = await productModel
+      .find({ available: true })
+      .populate("category", "_id name block");
+    if (products.length === 0) {
+      res
+        .status(204)
+        .header("X-No-Data-Message", "No Products found in the database.")
+        .send();
+    } else {
+      res.status(200).json(products);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: `Internal Server Erroe: Unable to get Product list ${error.message}`,
     });
   }
 };
@@ -86,10 +109,12 @@ export const doLogin = async (req, res) => {
     const { mobile, password } = req.body;
     const driver = await driverModel.findOne({ mobile });
     if (driver) {
-      bcrypt.compare(password, driver.password, (err, result) => {
-        if (err) {
-          console.error(err);
-          return res.status(500).json({ message: "Internal Server Error" });
+      bcrypt.compare(password, driver.password, (error, result) => {
+        if (error) {
+          console.error(error);
+          return res.status(500).json({
+            message: `Internal Server Error: Unable to compare passwords. ${error.message}`,
+          });
         }
         if (result) {
           const token = generateToken({ driverId: driver._id });
@@ -105,13 +130,13 @@ export const doLogin = async (req, res) => {
         }
       });
     } else {
-      res.status(404).json({ message: "Driver not found" });
+      res.status(404).json({ message: "Driver not found with given email." });
     }
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ message: "An error occurred. Please try again later." });
+    res.status(500).json({
+      message: `Internal Server Error: Please try again later. ${error.message}`,
+    });
   }
 };
 
@@ -135,12 +160,12 @@ export const createBill = async (req, res) => {
       message: "Order created successfully",
       newOrder,
     };
-    if (!newOrder || newOrder._id == null) {
-      return res.status(500).json({ message: "Order creation failed" });
-    }
     res.status(201).json(response);
   } catch (error) {
-    console.error("Error creating order:", error);
-    res.status(500).json({ error: "Error creating order" });
+    res
+      .status(500)
+      .json({
+        message: `Internal server error: Unable to Create Order ${error.message}`,
+      });
   }
 };

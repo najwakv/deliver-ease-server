@@ -167,29 +167,6 @@ export const getProduct = async (req, res) => {
   }
 };
 
-// ------------------------------------------------------------------GET-AVAILABLE-PRODUCT------------------------------------------------------------------//
-
-export const getAvailableProduct = async (req, res) => {
-  try {
-    const products = await productModel
-      .find({ available: true })
-      .populate("category", "_id name block");
-    if (products.length === 0) {
-      res
-        .status(204)
-        .header("X-No-Data-Message", "No Products found in the database.")
-        .send();
-    } else {
-      res.status(200).json(products);
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Unable to get Product list. An internal server error occurred.",
-    });
-  }
-};
-
 // ------------------------------------------------------------------GET-ORDERS------------------------------------------------------------------//
 
 export const getOrders = async (req, res) => {

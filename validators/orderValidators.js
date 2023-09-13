@@ -60,11 +60,9 @@ export const validateOrder = async (req, res, next) => {
     next();
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({
-        message: `Internal Server Error: occurred while validating.${error.message}`,
-      });
+    res.status(500).json({
+      message: `Internal Server Error: occurred while validating.${error.message}`,
+    });
   }
 };
 
@@ -93,27 +91,13 @@ export const validateOrderId = async (req, res, next) => {
     console.error(error);
     res
       .status(500)
-      .json({ message: `Internal Server Error: occurred while validating.${error.message}` });
+      .json({
+        message: `Internal Server Error: occurred while validating.${error.message}`,
+      });
   }
 };
 
-export const validateCreateBill = async (req, res, next) => {
-  try {
-    for (const rule of createBillValidationRules) {
-      await rule.run(req);
-    }
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    next();
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ message: `Internal Server Error: ${error.message}` });
-  }
-};
+// --------------------------------------------------------------CREATE-BILL-------------------------------------------------------------------//
 
 const createBillValidationRules = [
   check("items").isArray().withMessage("Items should be an array"),
@@ -144,3 +128,23 @@ const createBillValidationRules = [
     .withMessage("Collected Amount should be a positive float number")
     .trim(),
 ];
+
+export const validateCreateBill = async (req, res, next) => {
+  try {
+    for (const rule of createBillValidationRules) {
+      await rule.run(req);
+    }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({
+        message: `Internal Server Error: occurred while validating.${error.message}`,
+      });
+  }
+};

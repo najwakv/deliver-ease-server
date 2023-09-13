@@ -1,5 +1,5 @@
 import express from "express";
-import { addCategory, addDriver, addOrder, addProduct, addVendor, deleteDriver, deleteProduct, deleteVendor, doLogin, getAvailableProduct, getCategories, getCategory, getDriver, getDrivers, getOrder, getOrders, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, toggleIsAvailable, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
+import { addCategory, addDriver, addOrder, addProduct, addVendor, deleteDriver, deleteProduct, deleteVendor, doLogin, getCategories, getCategory, getDriver, getDrivers, getOrder, getOrders, getProduct, getProducts, getVendor, getVendors, toggleBlockDriver, toggleIsAvailable, updateDriver, updateProduct, updateVendor } from "../controllers/adminController.js";
 import { adminAuthMiddleware } from "../middlewares/adminAuthMiddleware.js";
 import { validateLogin } from "../validators/adminValidators.js";
 import { validateDriver, validateDriverId, validateUpdateDriver } from "../validators/driverValidators.js";
@@ -17,7 +17,6 @@ router.get("/vendors/:vendorId", adminAuthMiddleware, validateVendorId, getVendo
 router.get("/categories", adminAuthMiddleware, getCategories);
 router.get("/categories/:categoryId", adminAuthMiddleware, validateCategoryId, getCategory);
 router.get("/products", adminAuthMiddleware, getProducts);
-router.get("/products/getAvailableProduct", adminAuthMiddleware, getAvailableProduct);
 router.get("/products/:productId", adminAuthMiddleware, validateProductId, getProduct);
 router.get("/orders", adminAuthMiddleware, getOrders);
 router.get("/orders/:orderId", adminAuthMiddleware, validateOrderId, getOrder);
